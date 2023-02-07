@@ -1,5 +1,5 @@
 #!/bin/python3
-
+import re
 
 def validate_html(html):
     '''
@@ -10,6 +10,21 @@ def validate_html(html):
     >>> validate_html('<strong>example')
     False
     '''
+    tags = _extract_tags(html)
+    stack = []
+    if len(tags) <= 1 and len(html) > 0:
+        return False
+    for i in range(len(tags)):
+        if "/" not in tags[i]:
+            stack.append(tags[i])
+        else:
+            if len(stack) == 0:  # addresses if there is nothing in the stack and if it begins with \ - closing tag
+                return False
+            if stack[-1][1:] in tags[i]:
+                stack.pop()
+            else:
+                return False
+    return len(stack) == 0
 
     # HINT:
     # use the _extract_tags function below to generate a list of html tags without any extra text;
@@ -29,3 +44,5 @@ def _extract_tags(html):
     >>> _extract_tags('Python <strong>rocks</strong>!')
     ['<strong>', '</strong>']
     '''
+    tags = re.findall(r'<[^>]+>', html)
+    return tags
